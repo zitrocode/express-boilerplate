@@ -81,7 +81,7 @@ application.use(passport.initialize());
 passport.use('jwt', jwtStrategy);
 
 // Register API routes
-application.use('/api', globalRouter);
+application.use(globalRouter);
 
 // Send back a 404 error for any unknown API requests
 application.use((_req, _res, next: NextFunction) => {
