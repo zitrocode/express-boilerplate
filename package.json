@@ -1,6 +1,6 @@
 {
   "name": "express-boilerplate",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A boilerplate for building production-ready RESTful APIs using Node.js, Express, and Mongoose, with full TypeScript support.",
   "main": "build/main.js",
   "repository": "https://github.com/zitrocode/express-boilerplate",

@@ -1,5 +1,6 @@
 import express from 'express';
-import cookieParser from 'cookie-parser';
+import mongoSanitize from 'express-mongo-sanitize';
+
 import compression from 'compression';
 import status from 'http-status';
 import helmet from 'helmet';
@@ -34,11 +35,12 @@ if (config.env === 'development') {
 application.use(cors(corsOptions));
 
 // Parse incoming request bodies in JSON and URL-encoded formats
-application.use(express.json());
-application.use(express.urlencoded({ extended: true }));
+application.use(express.json({ limit: '10kb' }));
+application.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
-// Enable cookie parsing
-application.use(cookieParser());
+// Sanatize request data to prevent NoSQL injection attacks
+application.use(mongoSanitize());
+
 // Enable response compression to reduce playload size and improve performance
 application.use(
   compression({
@@ -47,7 +49,21 @@ application.use(
 );
 
 // Use helmet to set various HTTP headers for security
-application.use(helmet());
+application.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        upgradeInsecureRequests: []
+      }
+    },
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    crossOriginEmbedderPolicy: true
+  })
+);
+
 // Apply rate limiting middleware to prevent excessive requests and enhance security
 application.use(limiter);
 
