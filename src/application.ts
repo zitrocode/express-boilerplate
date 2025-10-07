@@ -16,12 +16,14 @@ import limiter from '@/lib/limiter';
 import * as morgan from '@/lib/morgan';
 import jwtStrategy from '@/lib/passport';
 
-import httpMessage from '@/shared/utils/http-message';
-import AppError from '@/shared/errors/AppError';
+import queryWritable from '@/middlewares/query-writable.middleware';
 import errorConverter from '@/middlewares/error/error-converter';
 import errorHandler from '@/middlewares/error/error-hanlder';
 
 import globalRouter from '@/routes';
+
+import httpMessage from '@/shared/utils/http-message';
+import AppError from '@/shared/errors/AppError';
 
 const application = express();
 
@@ -38,8 +40,15 @@ application.use(cors(corsOptions));
 application.use(express.json({ limit: '10kb' }));
 application.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
+// Allow query parameters to be mutable
+application.use(queryWritable);
+
 // Sanatize request data to prevent NoSQL injection attacks
-application.use(mongoSanitize());
+application.use(
+  mongoSanitize({
+    replaceWith: '_'
+  })
+);
 
 // Enable response compression to reduce playload size and improve performance
 application.use(
